@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -N plink_log_c1_2016_cov
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=480:00:00
+#PBS -e errlog_c1_2016
+
+cd $PBS_O_WORKDIR
+
+plink --bfile 527 --logistic --pheno pnt_c1_2016 --noweb --out c1_2016_cov --allow-no-sex --no-parents --no-sex --covar cov_c1.txt --covar-number 1-2
+#--pfilter 0.01
+
+awk '{if($5=="ADD"){OFS=",";print $1,$2,$3,$9}}' c1_2016_cov.assoc.logistic > c1_2016_cov.resul
+
+grep -v "NA" c1_2016_cov.resul > c1_2016_cov.result
+
+rm c1_2016_cov.resul
+
+python hh_man_c1.py c1_2016_cov.result
+
+rm plink_log_c1_2016.o*
